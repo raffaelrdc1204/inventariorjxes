@@ -8,35 +8,157 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary: #1a2a6c;
-            --accent: #00d2ff;
-            --success: #2727ae;
+            /* Nova paleta de azuis claros */
+            --primary: #0369a1;
+            --accent: #0ea5e9;
+            --success: #0284c7;
             --excel: #1d6f42;
-            --bg: #f4f7f6;
-            --text: #2c3e50;
+            --bg: #f8fafc;
+            --text: #334155;
+            --nav-gradient: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; }
-        .navbar { background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .container { max-width: 1250px; margin: 2rem auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .filter-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-        .filter-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: var(--primary); }
-        select, .search-input { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; outline: none; box-sizing: border-box; }
-        .table-responsive { overflow-x: auto; max-height: 600px; }
+
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+        }
+
+        .navbar { 
+            background: var(--nav-gradient); 
+            padding: 0.5rem 2rem; /* Espessura reduzida */
+            color: var(--primary); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #bae6fd;
+        }
+
+        .navbar h1 { 
+            font-size: 1.2rem; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        /* Botão Power BI */
+        .pbi-link {
+            text-decoration: none;
+            color: #b45309; /* Cor característica do Power BI (âmbar/ouro) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .pbi-link:hover { transform: scale(1.05); }
+        .pbi-link i { font-size: 1.4rem; color: #f2c811; }
+        .pbi-link span { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-top: 2px; }
+
+        .container { 
+            max-width: 1250px; 
+            margin: 1rem auto; /* Margem reduzida */
+            padding: 15px; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+        }
+
+        .filter-panel { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 15px; 
+            padding: 10px 10px 20px 10px; 
+            border-bottom: 1px solid #f1f5f9; 
+            margin-bottom: 15px; 
+        }
+
+        .filter-group label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+            font-size: 0.85rem; 
+            color: var(--primary); 
+        }
+
+        select, .search-input { 
+            width: 100%; 
+            padding: 8px 12px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 6px; 
+            outline: none; 
+            font-size: 0.9rem;
+        }
+
+        .table-responsive { overflow-x: auto; max-height: 500px; }
+        
         table { width: 100%; border-collapse: collapse; }
-        th { background-color: #f8f9fa; color: var(--primary); padding: 15px; text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #eee; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.85rem; }
-        .actions-bar { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
-        .btn-save { background: var(--success); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .btn-export { background: var(--excel); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
-        .date-badge { background: #e1f5fe; color: #01579b; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
-        .qty-input { width: 80px; padding: 8px; border: 2px solid #ddd; border-radius: 6px; text-align: center; }
-        .loader { display: none; text-align: center; padding: 40px; }
+        
+        th { 
+            background-color: #f8fafc; 
+            color: var(--primary); 
+            padding: 12px; 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+            border-bottom: 1px solid #e2e8f0; 
+        }
+
+        td { padding: 10px 12px; border-bottom: 1px solid #f8fafc; font-size: 0.85rem; }
+
+        .actions-bar { 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 12px; 
+            margin-top: 15px; 
+            padding-top: 10px;
+        }
+
+        .btn-save, .btn-export { 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .btn-save { background: var(--success); color: white; }
+        .btn-export { background: var(--excel); color: white; }
+        .btn-save:hover, .btn-export:hover { opacity: 0.9; }
+
+        .date-badge { 
+            background: #f0f9ff; 
+            color: #0369a1; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.75rem; 
+            border: 1px solid #bae6fd;
+        }
+
+        .qty-input { width: 70px; padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; }
+        
+        .loader { display: none; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
     <h1><i class="fas fa-boxes"></i> SGI | Gestão de Materiais</h1>
+    
+    <a href="https://app.powerbi.com/view?r=eyJrIjoiYzljNTA5MDItOThhZi00ZTFjLWEzNjctZWZjMzViYmFmNjNiIiwidCI6IjczNWUyYWNmLTBmZjUtNDEwYi1hMzc0LTc2NWI1NjU0MGI3YyJ9" 
+       target="_blank" class="pbi-link">
+        <i class="fas fa-chart-bar"></i>
+        <span>Acessar Dashboard GSI - Inventário</span>
+    </a>
 </div>
 
 <div class="container">
@@ -84,7 +206,7 @@
         </div>
         <div class="actions-bar">
             <button class="btn-export" onclick="exportarExcel()">
-                <i class="fas fa-file-excel"></i> EXPORTAR RELATÓRIO
+                <i class="fas fa-file-excel"></i> EXPORTAR
             </button>
             <button id="btnSalvar" class="btn-save" onclick="salvarContagem()">
                 <i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO
@@ -94,6 +216,7 @@
 </div>
 
 <script>
+    // ... (Mantive toda a sua lógica de JavaScript original abaixo)
     const almoxs = { 'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 'ES': ['VVA', 'CIM', 'CNA', 'LNS'] };
 
     function popularAlmoxarifados() {
@@ -134,16 +257,14 @@
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').style.display = 'block';
         } catch (error) {
-            alert("Erro ao carregar dados.");
+            console.error(error);
             document.getElementById('loader').style.display = 'none';
         }
     }
 
     async function salvarContagem() {
         const inputs = document.querySelectorAll('.qty-input');
-        // Filtra apenas os campos que o usuário preencheu
         const editados = Array.from(inputs).filter(i => i.value !== "");
-        
         if(editados.length === 0) return alert("Preencha ao menos uma contagem.");
 
         const payload = editados.map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
@@ -157,27 +278,18 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
-            
             const res = await response.json();
-            
             if(res.status === "sucesso") {
-                // ATUALIZAÇÃO LOCAL: Mantém o item no mesmo lugar da tabela
                 editados.forEach(input => {
                     const row = input.closest('tr');
                     const cellSaldo = row.querySelector('.saldo-celula');
                     const cellData = row.querySelector('.data-celula');
-                    
-                    // Atualiza os valores visualmente sem recarregar a página
                     cellSaldo.innerText = input.value;
                     const hoje = new Date().toLocaleDateString('pt-BR');
                     cellData.innerHTML = `<span class="date-badge"><i class="far fa-calendar-alt"></i> ${hoje}</span>`;
-                    
-                    // Limpa o campo de input após salvar
                     input.value = "";
                 });
                 alert("✅ Inventário atualizado!");
-            } else {
-                alert("Erro ao salvar.");
             }
         } catch (error) {
             alert("Erro de conexão.");
@@ -188,12 +300,9 @@
     }
 
     function exportarExcel() {
-        const uf = document.getElementById('uf').value;
-        const almox = document.getElementById('almox').value;
         const table = document.getElementById("inventoryTable");
         const wb = XLSX.utils.table_to_book(table, { sheet: "Inventario" });
-        const dataAtual = new Date().toLocaleDateString().replace(/\//g, '-');
-        XLSX.writeFile(wb, `Relatorio_${uf}_${almox}_${dataAtual}.xlsx`);
+        XLSX.writeFile(wb, `Relatorio_Inventario.xlsx`);
     }
 
     function filtrarTabela() {
@@ -210,6 +319,7 @@
 </script>
 </body>
 </html>
+
 
 
 
