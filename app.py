@@ -4,14 +4,14 @@ import psycopg2
 from psycopg2 import extras
 from datetime import date
 from dotenv import load_dotenv
-import sys # Importante para os logs aparecerem no Render
+import sys
 
 # Carrega variáveis
 load_dotenv()
 
 app = Flask(__name__)
 
-# Função para garantir que o log apareça no painel do Render imediatamente
+# Função de Log para o Render
 def log_debug(mensagem):
     print(f"[DEBUG] {mensagem}", file=sys.stdout, flush=True)
 
@@ -19,17 +19,15 @@ def get_db_connection():
     try:
         db_url = os.environ.get('DATABASE_URL')
         
-        # Fallback local (apague antes de produção final se quiser)
+        # URL de fallback (segurança para teste local)
         if not db_url:
              db_url = "postgresql://sgi_inventario_rjxes_sj1y_user:EWE0hyxbbyIrQ300TSmR23GlPHzbgVBu@dpg-d61vdo4r85hc7388e95g-a.ohio-postgres.render.com/sgi_inventario_rjxes_sj1y"
 
         if not db_url:
-            log_debug("ERRO CRÍTICO: Sem URL de conexão.")
+            log_debug("ERRO CRÍTICO: Nenhuma URL de banco encontrada.")
             return None
 
-        log_debug("Tentando conectar ao banco...")
         conn = psycopg2.connect(db_url, sslmode='require')
-        log_debug("Conexão realizada com sucesso!")
         return conn
     except Exception as e:
         log_debug(f"ERRO AO CONECTAR: {e}")
@@ -41,44 +39,41 @@ def index():
 
 @app.route('/materiais/<almox>')
 def listar_materiais(almox):
-    log_debug(f"Recebida solicitação para o Almoxarifado: {almox}")
-    
+    log_debug(f"Buscando Almoxarifado: {almox}")
     conn = get_db_connection()
     if not conn:
-        log_debug("Abortando: Conexão falhou.")
         return jsonify([]) 
 
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-        # Removi os "Aliases" (AS "NOME") para testar o padrão nativo.
-        # Estamos buscando na tabela correta: inventario_almox_rjxes
-        query = """
-            SELECT id, ORIGEM, PRODUTOS, UND, quantidade_real, ultima_atualizacao
+        # --- CORREÇÃO FINAL BASEADA NO LOG ---
+        # No Postgres, colunas criadas em MAIÚSCULO precisam de aspas duplas "" para serem achadas.
+        # id, quantidade_real e ultima_atualizacao parecem ser minusculas, entao ficam sem aspas.
+        cursor.execute("""
+            SELECT 
+                id, 
+                "ORIGEM", 
+                "PRODUTOS", 
+                "UND", 
+                quantidade_real, 
+                ultima_atualizacao
             FROM inventario_almox_rjxes
-            WHERE UPPER(TRIM(ALMOX)) = UPPER(TRIM(%s))
-        """
-        log_debug(f"Executando Query: {query} com parametro {almox}")
-        
-        cursor.execute(query, (almox,))
-        dados = cursor.fetchall()
-        
-        log_debug(f"RESULTADO: Encontrados {len(dados)} registros.")
+            WHERE UPPER(TRIM("ALMOX")) = UPPER(TRIM(%s))
+        """, (almox,))
 
-        # Se encontrou dados, vamos imprimir o primeiro para ver as chaves (colunas)
-        if len(dados) > 0:
-            log_debug(f"Exemplo de registro encontrado: {dados[0]}")
+        dados = cursor.fetchall()
+        log_debug(f"Encontrados {len(dados)} registros.")
 
         for item in dados:
-            if item.get('ultima_atualizacao'): # .get evita erro se a chave mudar
+            if item.get('ultima_atualizacao'):
                 item['data_fmt'] = item['ultima_atualizacao'].strftime('%d/%m/%Y')
             else:
                 item['data_fmt'] = 'Sem Data'
         
         return jsonify(dados)
-
     except Exception as e:
-        log_debug(f"ERRO GRAVE NA CONSULTA SQL: {e}")
+        log_debug(f"Erro na consulta SQL: {e}") # Isso vai aparecer no log se der erro de novo
         return jsonify([])
     finally:
         if conn:
@@ -87,11 +82,10 @@ def listar_materiais(almox):
 
 @app.route('/atualizar', methods=['POST'])
 def atualizar():
-    log_debug("Iniciando atualização de inventário...")
     dados = request.json
     conn = get_db_connection()
     if not conn:
-        return jsonify({"status": "erro", "mensagem": "Sem conexão com o banco"}), 500
+        return jsonify({"status": "erro", "mensagem": "Sem conexão"}), 500
     
     cursor = conn.cursor()
     try:
@@ -104,8 +98,7 @@ def atualizar():
             cursor.execute(query, (item['nova_qtd'], item['id']))
         
         conn.commit()
-        log_debug("Atualização salva com sucesso.")
-        return jsonify({"status": "sucesso", "mensagem": "Inventário atualizado com sucesso!"})
+        return jsonify({"status": "sucesso", "mensagem": "Atualizado!"})
     except Exception as e:
         log_debug(f"Erro ao salvar: {e}")
         conn.rollback() 
