@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Função de Log para o Render
+# --- CONFIGURAÇÃO DE LOG ---
 def log_debug(mensagem):
     print(f"[DEBUG] {mensagem}", file=sys.stdout, flush=True)
 
@@ -19,7 +19,7 @@ def get_db_connection():
     try:
         db_url = os.environ.get('DATABASE_URL')
         
-        # URL de fallback (segurança para teste local)
+        # Fallback para teste local
         if not db_url:
              db_url = "postgresql://sgi_inventario_rjxes_sj1y_user:EWE0hyxbbyIrQ300TSmR23GlPHzbgVBu@dpg-d61vdo4r85hc7388e95g-a.ohio-postgres.render.com/sgi_inventario_rjxes_sj1y"
 
@@ -40,6 +40,7 @@ def index():
 @app.route('/materiais/<almox>')
 def listar_materiais(almox):
     log_debug(f"Buscando Almoxarifado: {almox}")
+    
     conn = get_db_connection()
     if not conn:
         return jsonify([]) 
@@ -47,9 +48,9 @@ def listar_materiais(almox):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-        # --- CORREÇÃO FINAL BASEADA NO LOG ---
-        # No Postgres, colunas criadas em MAIÚSCULO precisam de aspas duplas "" para serem achadas.
-        # id, quantidade_real e ultima_atualizacao parecem ser minusculas, entao ficam sem aspas.
+        # --- CORREÇÃO OBRIGATÓRIA ---
+        # Colocamos aspas duplas nas colunas que estão em MAIÚSCULO no banco.
+        # Assim o Postgres não converte para minúsculo e acha a coluna certa.
         cursor.execute("""
             SELECT 
                 id, 
@@ -63,8 +64,8 @@ def listar_materiais(almox):
         """, (almox,))
 
         dados = cursor.fetchall()
-        log_debug(f"Encontrados {len(dados)} registros.")
-
+        log_debug(f"Sucesso! Encontrados {len(dados)} registros.")
+        
         for item in dados:
             if item.get('ultima_atualizacao'):
                 item['data_fmt'] = item['ultima_atualizacao'].strftime('%d/%m/%Y')
@@ -72,8 +73,9 @@ def listar_materiais(almox):
                 item['data_fmt'] = 'Sem Data'
         
         return jsonify(dados)
+
     except Exception as e:
-        log_debug(f"Erro na consulta SQL: {e}") # Isso vai aparecer no log se der erro de novo
+        log_debug(f"ERRO DE SQL: {e}")
         return jsonify([])
     finally:
         if conn:
@@ -90,6 +92,7 @@ def atualizar():
     cursor = conn.cursor()
     try:
         for item in dados:
+            # Aqui mantemos id e quantidade_real sem aspas pois são minúsculas no banco
             query = """
                 UPDATE inventario_almox_rjxes 
                 SET quantidade_real = %s, ultima_atualizacao = NOW() 
@@ -111,4 +114,3 @@ def atualizar():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
