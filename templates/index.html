@@ -228,14 +228,14 @@
             
             let html = '';
             materiais.forEach(m => {
-                // Ajuste: Verifica se data_fmt existe, senão usa texto padrão
+                // CORREÇÃO: Usando nomes de propriedades em minúsculo conforme o banco ajustado
                 const dataExibicao = m.data_fmt ? m.data_fmt : 'Não atualizado';
                 
                 html += `
                     <tr>
-                        <td><strong>${m.ORIGEM}</strong></td>
-                        <td>${m.PRODUTOS}</td>
-                        <td><small>${m.UND}</small></td>
+                        <td><strong>${m.origem}</strong></td>
+                        <td>${m.produtos}</td>
+                        <td><small>${m.und}</small></td>
                         <td style="font-weight: 600;">${m.quantidade_real}</td>
                         <td>
                             <span class="date-badge">
@@ -254,7 +254,7 @@
             document.getElementById('content').style.display = 'block';
         } catch (error) {
             console.error("Erro:", error);
-            alert("Erro ao carregar dados. Verifique a conexão com o Python.");
+            alert("Erro ao carregar dados. Verifique a conexão com o servidor.");
             document.getElementById('loader').style.display = 'none';
         }
     }
@@ -264,7 +264,7 @@
         const tr = document.getElementById("tableBody").getElementsByTagName("tr");
 
         for (let i = 0; i < tr.length; i++) {
-            const td = tr[i].getElementsByTagName("td")[1]; // Coluna Material
+            const td = tr[i].getElementsByTagName("td")[1]; // Coluna Material (produtos)
             if (td) {
                 const text = td.textContent || td.innerText;
                 tr[i].style.display = text.toUpperCase().indexOf(input) > -1 ? "" : "none";
@@ -280,7 +280,6 @@
 
         if(payload.length === 0) return alert("Preencha ao menos uma contagem.");
 
-        // Feedback visual no botão
         const btn = document.getElementById('btnSalvar');
         const textoOriginal = btn.innerHTML;
         btn.disabled = true;
@@ -296,22 +295,22 @@
             const res = await response.json();
             if(res.status === "sucesso") {
                 alert("✅ Inventário atualizado com sucesso!");
-                // Limpa os campos preenchidos
                 Array.from(inputs).forEach(i => i.value = "");
                 carregarDados(); 
             } else {
-                alert("Erro ao salvar: " + (res.message || "Erro desconhecido"));
+                alert("Erro ao salvar: " + (res.mensagem || "Erro desconhecido"));
             }
         } catch (error) {
             console.error(error);
             alert("Erro ao salvar. Verifique sua conexão.");
         } finally {
-            // Restaura o botão
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
         }
     }
 </script>
-
 </body>
 </html>
+</body>
+</html>
+
