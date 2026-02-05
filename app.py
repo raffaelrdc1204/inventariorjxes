@@ -3,24 +3,30 @@ from flask import Flask, render_template, request, jsonify
 import psycopg2
 from psycopg2 import extras
 from datetime import date
+from dotenv import load_dotenv
+
+# Carrega variáveis do arquivo .env (para teste local seguro)
+load_dotenv()
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÃO DA CONEXÃO ---
-# Aqui está a URL que você forneceu. O código vai usá-la quando rodar no seu computador.
-# Quando estiver no Render, ele vai ignorar isso e usar a variável de ambiente automática.
-URL_CONEXAO_LOCAL = "postgresql://sgi_inventario_rjxes_sj1y_user:EWE0hyxbbyIrQ300TSmR23GlPHzbgVBu@dpg-d61vdo4r85hc7388e95g-a.ohio-postgres.render.com/sgi_inventario_rjxes_sj1y"
-
 def get_db_connection():
     try:
-        # 1. Tenta pegar a variável do sistema (Ambiente do Render)
+        # 1. Tenta pegar a URL configurada no Render (Seguro e Automático)
         db_url = os.environ.get('DATABASE_URL')
         
-        # 2. Se não achar (ou seja, está no seu PC), usa a URL fixa que definimos acima
+        # --- BLOCO PARA TESTE LOCAL (SE PRECISAR) ---
+        # Se não achar a variável (estiver no seu PC sem .env), usa essa fixa.
+        # IMPORTANTE: Apague ou comente essa linha antes de subir para o GitHub público!
         if not db_url:
-            db_url = URL_CONEXAO_LOCAL
+             db_url = "postgresql://sgi_inventario_rjxes_sj1y_user:EWE0hyxbbyIrQ300TSmR23GlPHzbgVBu@dpg-d61vdo4r85hc7388e95g-a.ohio-postgres.render.com/sgi_inventario_rjxes_sj1y"
+        # ---------------------------------------------
 
-        # 3. Conecta com SSL exigido pelo Render
+        if not db_url:
+            print("ERRO CRÍTICO: Nenhuma URL de banco de dados encontrada.")
+            return None
+
+        # Conecta com SSL exigido pelo Render
         conn = psycopg2.connect(db_url, sslmode='require')
         return conn
     except Exception as e:
@@ -35,13 +41,14 @@ def index():
 def listar_materiais(almox):
     conn = get_db_connection()
     if not conn:
-        # Retorna lista vazia se não conectar, para não quebrar o front
         return jsonify([]) 
 
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    # CORREÇÃO: Nome da tabela atualizado para 'inventario_almox_rjxes'
     try:
+        # --- AQUI ESTAVA O SEGREDO ---
+        # 1. Tabela correta: inventario_almox_rjxes
+        # 2. Coluna correta: ALMOX (Pois 'RJO' está na coluna ALMOX, coluna 5)
         cursor.execute("""
             SELECT id, ORIGEM, PRODUTOS, UND, quantidade_real, ultima_atualizacao
             FROM inventario_almox_rjxes
@@ -50,6 +57,7 @@ def listar_materiais(almox):
 
         dados = cursor.fetchall()
 
+        # Formata a data para exibir bonitinho no front
         for item in dados:
             if item['ultima_atualizacao']:
                 item['data_fmt'] = item['ultima_atualizacao'].strftime('%d/%m/%Y')
@@ -58,11 +66,13 @@ def listar_materiais(almox):
         
         return jsonify(dados)
     except Exception as e:
-        print(f"Erro ao buscar dados: {e}")
+        print(f"Erro na consulta SQL: {e}")
         return jsonify([])
     finally:
-        cursor.close()
-        conn.close()
+        # Garante que a conexão fecha mesmo se der erro
+        if conn:
+            cursor.close()
+            conn.close()
 
 @app.route('/atualizar', methods=['POST'])
 def atualizar():
@@ -74,7 +84,7 @@ def atualizar():
     cursor = conn.cursor()
     try:
         for item in dados:
-            # CORREÇÃO: Nome da tabela atualizado para 'inventario_almox_rjxes'
+            # Atualiza a tabela correta
             query = """
                 UPDATE inventario_almox_rjxes 
                 SET quantidade_real = %s, ultima_atualizacao = NOW() 
@@ -94,5 +104,7 @@ def atualizar():
             conn.close()
 
 if __name__ == '__main__':
+    # Usa a porta definida pelo Render ou 5000 localmente
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
