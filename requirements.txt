@@ -1,4 +1,4 @@
 flask
-pymysql
-sqlalchemy
+flask-sqlalchemy
+psycopg2-binary
 gunicorn
