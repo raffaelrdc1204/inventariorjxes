@@ -11,7 +11,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÃO DE LOG ---
+# --- LOGGING PARA DEBUG ---
 def log_debug(mensagem):
     print(f"[DEBUG] {mensagem}", file=sys.stdout, flush=True)
 
@@ -19,12 +19,12 @@ def get_db_connection():
     try:
         db_url = os.environ.get('DATABASE_URL')
         
-        # Fallback para teste local
+        # Fallback local
         if not db_url:
              db_url = "postgresql://sgi_inventario_rjxes_sj1y_user:EWE0hyxbbyIrQ300TSmR23GlPHzbgVBu@dpg-d61vdo4r85hc7388e95g-a.ohio-postgres.render.com/sgi_inventario_rjxes_sj1y"
 
         if not db_url:
-            log_debug("ERRO CRÍTICO: Nenhuma URL de banco encontrada.")
+            log_debug("ERRO CRÍTICO: Sem URL de banco.")
             return None
 
         conn = psycopg2.connect(db_url, sslmode='require')
@@ -40,7 +40,6 @@ def index():
 @app.route('/materiais/<almox>')
 def listar_materiais(almox):
     log_debug(f"Buscando Almoxarifado: {almox}")
-    
     conn = get_db_connection()
     if not conn:
         return jsonify([]) 
@@ -48,9 +47,9 @@ def listar_materiais(almox):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-        # --- CORREÇÃO OBRIGATÓRIA ---
-        # Colocamos aspas duplas nas colunas que estão em MAIÚSCULO no banco.
-        # Assim o Postgres não converte para minúsculo e acha a coluna certa.
+        # --- A CORREÇÃO CRUCIAL ---
+        # 1. "ORIGEM", "PRODUTOS", "UND", "ALMOX" (Maiúsculas precisam de aspas)
+        # 2. "ultima_atualização" (Com acento e aspas, renomeando para sem acento)
         cursor.execute("""
             SELECT 
                 id, 
@@ -58,13 +57,13 @@ def listar_materiais(almox):
                 "PRODUTOS", 
                 "UND", 
                 quantidade_real, 
-                ultima_atualizacao
+                "ultima_atualização" AS ultima_atualizacao
             FROM inventario_almox_rjxes
             WHERE UPPER(TRIM("ALMOX")) = UPPER(TRIM(%s))
         """, (almox,))
 
         dados = cursor.fetchall()
-        log_debug(f"Sucesso! Encontrados {len(dados)} registros.")
+        log_debug(f"Encontrados {len(dados)} registros.")
         
         for item in dados:
             if item.get('ultima_atualizacao'):
@@ -92,10 +91,10 @@ def atualizar():
     cursor = conn.cursor()
     try:
         for item in dados:
-            # Aqui mantemos id e quantidade_real sem aspas pois são minúsculas no banco
+            # Correção também na atualização: usar aspas e acentos no nome da coluna
             query = """
                 UPDATE inventario_almox_rjxes 
-                SET quantidade_real = %s, ultima_atualizacao = NOW() 
+                SET quantidade_real = %s, "ultima_atualização" = NOW() 
                 WHERE id = %s
             """
             cursor.execute(query, (item['nova_qtd'], item['id']))
