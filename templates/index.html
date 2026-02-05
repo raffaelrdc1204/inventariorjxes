@@ -5,139 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGI - Sistema de Gestão de Inventário</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #1a2a6c;
             --accent: #00d2ff;
             --success: #2727ae;
-            --danger: #5e3ce7;
+            --excel: #1d6f42;
             --bg: #f4f7f6;
             --text: #2c3e50;
         }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar {
-            background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d);
-            padding: 1rem 2rem;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .navbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
-
-        .container {
-            max-width: 1250px;
-            margin: 2rem auto;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        .filter-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            background: #fff;
-            padding: 20px;
-            border-bottom: 2px solid #eee;
-            margin-bottom: 20px;
-        }
-
-        .filter-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--primary);
-        }
-
-        select, .search-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #dfe6e9;
-            border-radius: 8px;
-            outline: none;
-            transition: 0.3s;
-            background-color: #f9f9f9;
-            box-sizing: border-box;
-        }
-
-        select:focus, .search-input:focus { border-color: var(--accent); background: #fff; }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; }
+        .navbar { background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .container { max-width: 1250px; margin: 2rem auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .filter-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .filter-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: var(--primary); }
+        select, .search-input { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; outline: none; box-sizing: border-box; }
         .table-responsive { overflow-x: auto; max-height: 600px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-
-        th {
-            background-color: #f8f9fa;
-            color: var(--primary);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            padding: 15px;
-            border-bottom: 2px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: #f8f9fa; color: var(--primary); padding: 15px; text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #eee; }
         td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.85rem; }
-
-        tr:hover { background-color: #faffff; }
-
-        .date-badge {
-            background: #e1f5fe;
-            color: #01579b;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
-        }
-
-        .qty-input {
-            width: 80px;
-            padding: 8px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .qty-input:focus { border-color: var(--success); outline: none; }
-
-        .btn-save {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            float: right;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-        }
-
-        .btn-save:hover { background: #219150; transform: translateY(-2px); }
-        .btn-save:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-
+        .actions-bar { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
+        .btn-save { background: var(--success); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .btn-export { background: var(--excel); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .date-badge { background: #e1f5fe; color: #01579b; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .qty-input { width: 80px; padding: 8px; border: 2px solid #ddd; border-radius: 6px; text-align: center; }
         .loader { display: none; text-align: center; padding: 40px; }
     </style>
 </head>
@@ -171,7 +63,7 @@
 
     <div id="loader" class="loader">
         <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--accent);"></i>
-        <p>Buscando informações no banco...</p>
+        <p>Acessando base de dados...</p>
     </div>
 
     <div id="content" style="display: none;">
@@ -190,17 +82,19 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-        <button id="btnSalvar" class="btn-save" onclick="salvarContagem()">
-            <i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO
-        </button>
+        <div class="actions-bar">
+            <button class="btn-export" onclick="exportarExcel()">
+                <i class="fas fa-file-excel"></i> EXPORTAR RELATÓRIO
+            </button>
+            <button id="btnSalvar" class="btn-save" onclick="salvarContagem()">
+                <i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
-    const almoxs = {
-        'RJ': ['RJO', 'VRD', 'CPS', 'ROS'],
-        'ES': ['VVA', 'CIM', 'CNA', 'LNS']
-    };
+    const almoxs = { 'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 'ES': ['VVA', 'CIM', 'CNA', 'LNS'] };
 
     function popularAlmoxarifados() {
         const uf = document.getElementById('uf').value;
@@ -218,72 +112,44 @@
     async function carregarDados() {
         const almox = document.getElementById('almox').value;
         if(!almox) return;
-
         document.getElementById('loader').style.display = 'block';
         document.getElementById('content').style.display = 'none';
 
         try {
             const response = await fetch(`/materiais/${almox}`);
             const materiais = await response.json();
-            
             let html = '';
             materiais.forEach(m => {
-                // CORREÇÃO: Usando nomes de propriedades em minúsculo conforme o banco ajustado
-                const dataExibicao = m.data_fmt ? m.data_fmt : 'Não atualizado';
-                
                 html += `
                     <tr>
                         <td><strong>${m.origem}</strong></td>
                         <td>${m.produtos}</td>
                         <td><small>${m.und}</small></td>
-                        <td style="font-weight: 600;">${m.quantidade_real}</td>
-                        <td>
-                            <span class="date-badge">
-                                <i class="far fa-calendar-alt"></i> ${dataExibicao}
-                            </span>
-                        </td>
-                        <td>
-                            <input type="number" class="qty-input" data-id="${m.id}" placeholder="0">
-                        </td>
-                    </tr>
-                `;
+                        <td class="saldo-celula" style="font-weight: 600;">${m.quantidade_real}</td>
+                        <td class="data-celula"><span class="date-badge"><i class="far fa-calendar-alt"></i> ${m.data_fmt || 'Pendente'}</span></td>
+                        <td><input type="number" class="qty-input" data-id="${m.id}" placeholder="0"></td>
+                    </tr>`;
             });
-
             document.getElementById('tableBody').innerHTML = html;
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').style.display = 'block';
         } catch (error) {
-            console.error("Erro:", error);
-            alert("Erro ao carregar dados. Verifique a conexão com o servidor.");
+            alert("Erro ao carregar dados.");
             document.getElementById('loader').style.display = 'none';
-        }
-    }
-
-    function filtrarTabela() {
-        const input = document.getElementById("searchInput").value.toUpperCase();
-        const tr = document.getElementById("tableBody").getElementsByTagName("tr");
-
-        for (let i = 0; i < tr.length; i++) {
-            const td = tr[i].getElementsByTagName("td")[1]; // Coluna Material (produtos)
-            if (td) {
-                const text = td.textContent || td.innerText;
-                tr[i].style.display = text.toUpperCase().indexOf(input) > -1 ? "" : "none";
-            }
         }
     }
 
     async function salvarContagem() {
         const inputs = document.querySelectorAll('.qty-input');
-        const payload = Array.from(inputs)
-            .filter(i => i.value !== "")
-            .map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
+        // Filtra apenas os campos que o usuário preencheu
+        const editados = Array.from(inputs).filter(i => i.value !== "");
+        
+        if(editados.length === 0) return alert("Preencha ao menos uma contagem.");
 
-        if(payload.length === 0) return alert("Preencha ao menos uma contagem.");
-
+        const payload = editados.map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
         const btn = document.getElementById('btnSalvar');
-        const textoOriginal = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SALVANDO...';
 
         try {
             const response = await fetch('/atualizar', {
@@ -291,26 +157,58 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
-
+            
             const res = await response.json();
+            
             if(res.status === "sucesso") {
-                alert("✅ Inventário atualizado com sucesso!");
-                Array.from(inputs).forEach(i => i.value = "");
-                carregarDados(); 
+                // ATUALIZAÇÃO LOCAL: Mantém o item no mesmo lugar da tabela
+                editados.forEach(input => {
+                    const row = input.closest('tr');
+                    const cellSaldo = row.querySelector('.saldo-celula');
+                    const cellData = row.querySelector('.data-celula');
+                    
+                    // Atualiza os valores visualmente sem recarregar a página
+                    cellSaldo.innerText = input.value;
+                    const hoje = new Date().toLocaleDateString('pt-BR');
+                    cellData.innerHTML = `<span class="date-badge"><i class="far fa-calendar-alt"></i> ${hoje}</span>`;
+                    
+                    // Limpa o campo de input após salvar
+                    input.value = "";
+                });
+                alert("✅ Inventário atualizado!");
             } else {
-                alert("Erro ao salvar: " + (res.mensagem || "Erro desconhecido"));
+                alert("Erro ao salvar.");
             }
         } catch (error) {
-            console.error(error);
-            alert("Erro ao salvar. Verifique sua conexão.");
+            alert("Erro de conexão.");
         } finally {
-            btn.innerHTML = textoOriginal;
             btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO';
+        }
+    }
+
+    function exportarExcel() {
+        const uf = document.getElementById('uf').value;
+        const almox = document.getElementById('almox').value;
+        const table = document.getElementById("inventoryTable");
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Inventario" });
+        const dataAtual = new Date().toLocaleDateString().replace(/\//g, '-');
+        XLSX.writeFile(wb, `Relatorio_${uf}_${almox}_${dataAtual}.xlsx`);
+    }
+
+    function filtrarTabela() {
+        const input = document.getElementById("searchInput").value.toUpperCase();
+        const tr = document.getElementById("tableBody").getElementsByTagName("tr");
+        for (let i = 0; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                const text = td.textContent || td.innerText;
+                tr[i].style.display = text.toUpperCase().indexOf(input) > -1 ? "" : "none";
+            }
         }
     }
 </script>
 </body>
 </html>
-</body>
-</html>
+
 
