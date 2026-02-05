@@ -1,23 +1,28 @@
+import os
 from flask import Flask, render_template, request, jsonify
-import mysql.connector
-from mysql.connector import Error
+import psycopg2
+from psycopg2 import extras
 from datetime import date
 
 app = Flask(__name__)
 
 def get_db_connection():
     try:
-        # ATENÇÃO: Essas credenciais funcionam apenas no seu PC (Localhost).
-        # Para subir no Render, precisaremos mudar isso depois.
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="123456789", 
-            database="inventario_rjxes"
-        )
-        return connection
-    except Error as e:
-        print(f"Erro ao conectar ao MySQL: {e}")
+        # AQUI ESTÁ O TRUQUE: 
+        # O código tenta pegar o endereço do banco nas variáveis de ambiente do sistema.
+        # Isso é padrão em servidores como o Render.
+        db_url = os.environ.get('DATABASE_URL')
+        
+        if not db_url:
+            # Fallback para teste local (opcional, se você instalar Postgres no PC)
+            # Se não tiver URL configurada, retorna None para tratarmos o erro.
+            print("AVISO: Variável DATABASE_URL não encontrada.")
+            return None
+
+        conn = psycopg2.connect(db_url)
+        return conn
+    except Exception as e:
+        print(f"Erro ao conectar ao PostgreSQL: {e}")
         return None
 
 @app.route('/')
@@ -28,10 +33,13 @@ def index():
 def listar_materiais(almox):
     conn = get_db_connection()
     if not conn:
-        return jsonify([]) # Retorna lista vazia se não conectar
+        # Retorna erro amigável se não conectar (ex: rodando local sem configurar)
+        return jsonify([]) 
 
-    cursor = conn.cursor(dictionary=True)
+    # No PostgreSQL, usamos RealDictCursor para receber os dados como dicionário
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
+    # A sintaxe SQL é compatível entre MySQL e Postgres neste caso simples
     cursor.execute("""
         SELECT id, ORIGEM, PRODUTOS, UND, quantidade_real, ultima_atualizacao
         FROM inventario
@@ -41,7 +49,6 @@ def listar_materiais(almox):
     dados = cursor.fetchall()
 
     for item in dados:
-        # AJUSTE IMPORTANTE: Criando o campo 'data_fmt' que o HTML espera
         if item['ultima_atualizacao']:
             item['data_fmt'] = item['ultima_atualizacao'].strftime('%d/%m/%Y')
         else:
@@ -62,7 +69,7 @@ def atualizar():
     cursor = conn.cursor()
     try:
         for item in dados:
-            # Atualiza a quantidade e define a hora atual (NOW())
+            # O comando NOW() funciona igual no Postgres
             query = """
                 UPDATE inventario 
                 SET quantidade_real = %s, ultima_atualizacao = NOW() 
@@ -72,13 +79,17 @@ def atualizar():
         
         conn.commit()
         return jsonify({"status": "sucesso", "mensagem": "Inventário atualizado com sucesso!"})
-    except Error as e:
+    except Exception as e:
         print(f"Erro ao salvar: {e}")
+        # rollback desfaz alterações se der erro no meio do caminho
+        conn.rollback() 
         return jsonify({"status": "erro", "mensagem": str(e)}), 500
     finally:
-        if conn.is_connected():
+        if conn:
             cursor.close()
             conn.close()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # A porta padrão do Render é definida pela variável PORT, ou usa 5000
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
