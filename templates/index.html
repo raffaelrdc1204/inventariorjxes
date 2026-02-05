@@ -7,14 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root {
-            --primary: #1a2a6c;
-            --accent: #00d2ff;
-            --success: #2727ae;
-            --excel: #1d6f42;
-            --bg: #f4f7f6;
-            --text: #2c3e50;
-        }
+        :root { --primary: #1a2a6c; --accent: #00d2ff; --success: #2727ae; --excel: #1d6f42; --bg: #f4f7f6; --text: #2c3e50; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; }
         .navbar { background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 1rem 2rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .container { max-width: 1250px; margin: 2rem auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -42,7 +35,7 @@
 <div class="container">
     <div class="filter-panel">
         <div class="filter-group">
-            <label><i class="fas fa-map-marker-alt"></i> Estado (UF)</label>
+            <label>Estado (UF)</label>
             <select id="uf" onchange="popularAlmoxarifados()">
                 <option value="">Selecione...</option>
                 <option value="RJ">Rio de Janeiro</option>
@@ -50,20 +43,19 @@
             </select>
         </div>
         <div class="filter-group">
-            <label><i class="fas fa-warehouse"></i> Almoxarifado</label>
+            <label>Almoxarifado</label>
             <select id="almox" onchange="carregarDados()">
                 <option value="">Selecione a UF primeiro</option>
             </select>
         </div>
         <div class="filter-group">
-            <label><i class="fas fa-search"></i> Filtrar Material</label>
+            <label>Filtrar Material</label>
             <input type="text" id="searchInput" class="search-input" placeholder="Digite para buscar..." onkeyup="filtrarTabela()">
         </div>
     </div>
 
     <div id="loader" class="loader">
-        <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--accent);"></i>
-        <p>Acessando base de dados...</p>
+        <p><i class="fas fa-spinner fa-spin"></i> Carregando inventário...</p>
     </div>
 
     <div id="content" style="display: none;">
@@ -72,7 +64,7 @@
                 <thead>
                     <tr>
                         <th>Origem</th>
-                        <th>Material / Descrição</th>
+                        <th>Material</th>
                         <th>UN</th>
                         <th>Saldo Atual</th>
                         <th>Última Atualização</th>
@@ -83,17 +75,14 @@
             </table>
         </div>
         <div class="actions-bar">
-            <button class="btn-export" onclick="exportarExcel()">
-                <i class="fas fa-file-excel"></i> EXPORTAR RELATÓRIO
-            </button>
-            <button id="btnSalvar" class="btn-save" onclick="salvarContagem()">
-                <i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO
-            </button>
+            <button class="btn-export" onclick="exportarExcel()">Exportar Excel</button>
+            <button id="btnSalvar" class="btn-save" onclick="salvarContagem()">Salvar Contagem</button>
         </div>
     </div>
 </div>
 
 <script>
+    const API_URL = "https://sgi-inventario-rjxes.onrender.com"; // AJUSTE PARA SUA URL DO RENDER
     const almoxs = { 'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 'ES': ['VVA', 'CIM', 'CNA', 'LNS'] };
 
     function popularAlmoxarifados() {
@@ -116,84 +105,55 @@
         document.getElementById('content').style.display = 'none';
 
         try {
-            const response = await fetch(`/materiais/${almox}`);
+            // Se estiver no GitHub, use a URL completa do Render aqui
+            const response = await fetch(`${API_URL}/materiais/${almox}`);
             const materiais = await response.json();
             let html = '';
             materiais.forEach(m => {
                 html += `
                     <tr>
-                        <td><strong>${m.origem}</strong></td>
+                        <td>${m.origem}</td>
                         <td>${m.produtos}</td>
-                        <td><small>${m.und}</small></td>
-                        <td class="saldo-celula" style="font-weight: 600;">${m.quantidade_real}</td>
-                        <td class="data-celula"><span class="date-badge"><i class="far fa-calendar-alt"></i> ${m.data_fmt || 'Pendente'}</span></td>
-                        <td><input type="number" class="qty-input" data-id="${m.id}" placeholder="0"></td>
+                        <td>${m.und}</td>
+                        <td class="saldo-celula">${m.quantidade_real}</td>
+                        <td class="data-celula"><span class="date-badge">${m.data_fmt}</span></td>
+                        <td><input type="number" class="qty-input" data-id="${m.id}"></td>
                     </tr>`;
             });
             document.getElementById('tableBody').innerHTML = html;
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').style.display = 'block';
-        } catch (error) {
-            alert("Erro ao carregar dados.");
-            document.getElementById('loader').style.display = 'none';
-        }
+        } catch (e) { alert("Erro ao carregar dados."); }
     }
 
     async function salvarContagem() {
-        const inputs = document.querySelectorAll('.qty-input');
-        // Filtra apenas os campos que o usuário preencheu
-        const editados = Array.from(inputs).filter(i => i.value !== "");
-        
-        if(editados.length === 0) return alert("Preencha ao menos uma contagem.");
+        const inputs = Array.from(document.querySelectorAll('.qty-input')).filter(i => i.value !== "");
+        if(inputs.length === 0) return alert("Preencha algo!");
 
-        const payload = editados.map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
-        const btn = document.getElementById('btnSalvar');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SALVANDO...';
-
+        const payload = inputs.map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
         try {
-            const response = await fetch('/atualizar', {
+            const response = await fetch(`${API_URL}/atualizar`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
-            
             const res = await response.json();
-            
             if(res.status === "sucesso") {
-                // ATUALIZAÇÃO LOCAL: Mantém o item no mesmo lugar da tabela
-                editados.forEach(input => {
+                inputs.forEach(input => {
                     const row = input.closest('tr');
-                    const cellSaldo = row.querySelector('.saldo-celula');
-                    const cellData = row.querySelector('.data-celula');
-                    
-                    // Atualiza os valores visualmente sem recarregar a página
-                    cellSaldo.innerText = input.value;
-                    const hoje = new Date().toLocaleDateString('pt-BR');
-                    cellData.innerHTML = `<span class="date-badge"><i class="far fa-calendar-alt"></i> ${hoje}</span>`;
-                    
-                    // Limpa o campo de input após salvar
+                    row.querySelector('.saldo-celula').innerText = input.value;
+                    row.querySelector('.data-celula').innerHTML = `<span class="date-badge">${new Date().toLocaleDateString('pt-BR')}</span>`;
                     input.value = "";
                 });
-                alert("✅ Inventário atualizado!");
-            } else {
-                alert("Erro ao salvar.");
+                alert("Atualizado!");
             }
-        } catch (error) {
-            alert("Erro de conexão.");
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO';
-        }
+        } catch (e) { alert("Erro ao salvar."); }
     }
 
     function exportarExcel() {
-        const uf = document.getElementById('uf').value;
-        const almox = document.getElementById('almox').value;
         const table = document.getElementById("inventoryTable");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Inventario" });
-        const dataAtual = new Date().toLocaleDateString().replace(/\//g, '-');
-        XLSX.writeFile(wb, `Relatorio_${uf}_${almox}_${dataAtual}.xlsx`);
+        const wb = XLSX.utils.table_to_book(table);
+        XLSX.writeFile(wb, "Relatorio_Inventario.xlsx");
     }
 
     function filtrarTabela() {
@@ -210,5 +170,6 @@
 </script>
 </body>
 </html>
+
 
 
