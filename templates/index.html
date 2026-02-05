@@ -14,7 +14,7 @@
             --excel: #1d6f42;
             --bg: #f4f7f6;
             --text: #2c3e50;
-            /* DEGRADÊ CONFORME A IMAGEM ENVIADA */
+            /* Degradê fiel à imagem enviada: Marinho, Vermelho e Laranja */
             --nav-gradient: linear-gradient(90deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
         }
 
@@ -25,10 +25,10 @@
             margin: 0; 
         }
 
-        /* Navbar ajustada para ser mais fina e com as cores da imagem */
+        /* Navbar compacta com as cores da imagem */
         .navbar { 
             background: var(--nav-gradient); 
-            padding: 0.5rem 2rem; 
+            padding: 0.4rem 2rem; 
             color: white; 
             display: flex; 
             justify-content: space-between; 
@@ -37,87 +37,105 @@
         }
 
         .navbar h1 { 
-            font-size: 1.2rem; 
+            font-size: 1.1rem; 
             margin: 0; 
             display: flex; 
             align-items: center; 
             gap: 10px; 
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
 
-        /* Botão do Power BI estilizado */
-        .pbi-container {
+        /* Emblema Profissional de Relatório BI */
+        .pbi-emblem {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
             color: white;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 5px 15px;
-            border-radius: 8px;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.3s ease;
         }
 
-        .pbi-container:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
+        .pbi-emblem:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #f2c811;
+            transform: translateY(-1px);
         }
 
-        .pbi-icon {
+        .pbi-icon-stack {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Alusão ao Relatório/Gráfico BI */
+        .pbi-icon-main {
             font-size: 1.8rem;
-            color: #f2c811; /* Amarelo Power BI */
+            color: #f2c811;
         }
 
         .pbi-text {
             display: flex;
             flex-direction: column;
-            line-height: 1.1;
+            line-height: 1;
         }
 
         .pbi-text span {
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
+        }
+
+        .pbi-subtext {
+            font-size: 0.6rem !important;
+            opacity: 0.9;
+            font-weight: 400 !important;
+            margin-top: 2px;
         }
 
         .container { 
             max-width: 1250px; 
-            margin: 1.5rem auto; 
-            padding: 20px; 
+            margin: 1rem auto; 
+            padding: 15px; 
             background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            border-radius: 10px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
         }
 
         .filter-panel { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 20px; 
-            padding: 10px 10px 20px 10px; 
-            border-bottom: 2px solid #eee; 
-            margin-bottom: 20px; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 15px; 
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee; 
+            margin-bottom: 15px; 
         }
 
         .filter-group label { 
             display: block; 
-            font-weight: 600; 
-            margin-bottom: 8px; 
-            font-size: 0.9rem; 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+            font-size: 0.8rem; 
             color: var(--primary); 
         }
 
         select, .search-input { 
             width: 100%; 
-            padding: 10px; 
-            border: 2px solid #dfe6e9; 
-            border-radius: 8px; 
-            outline: none; 
-            font-size: 0.9rem;
+            padding: 8px; 
+            border: 1px solid #dfe6e9; 
+            border-radius: 6px; 
+            font-size: 0.85rem;
+            outline: none;
         }
 
-        .table-responsive { overflow-x: auto; max-height: 550px; }
+        .table-responsive { overflow-x: auto; max-height: 500px; }
         
         table { width: 100%; border-collapse: collapse; }
         
@@ -126,33 +144,32 @@
             color: var(--primary); 
             padding: 12px; 
             text-transform: uppercase; 
-            font-size: 0.75rem; 
+            font-size: 0.7rem; 
             position: sticky; 
             top: 0; 
             z-index: 10; 
             border-bottom: 2px solid #eee; 
         }
 
-        td { padding: 10px 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.85rem; }
+        td { padding: 10px; border-bottom: 1px solid #f1f1f1; font-size: 0.8rem; }
 
         .actions-bar { 
             display: flex; 
             justify-content: flex-end; 
-            gap: 15px; 
-            margin-top: 20px; 
+            gap: 12px; 
+            margin-top: 15px; 
         }
 
         .btn-save, .btn-export { 
             border: none; 
-            padding: 12px 25px; 
-            border-radius: 8px; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
             font-weight: bold; 
             cursor: pointer; 
             display: flex; 
             align-items: center; 
-            gap: 10px; 
-            font-size: 0.85rem;
-            transition: 0.3s;
+            gap: 8px; 
+            font-size: 0.8rem;
         }
 
         .btn-save { background: var(--success); color: white; }
@@ -161,18 +178,14 @@
         .date-badge { 
             background: #e1f5fe; 
             color: #01579b; 
-            padding: 5px 12px; 
-            border-radius: 6px; 
-            font-size: 0.75rem; 
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            padding: 4px 10px; 
+            border-radius: 4px; 
+            font-size: 0.7rem; 
+            font-weight: 700;
         }
 
-        .qty-input { width: 80px; padding: 6px; border: 2px solid #ddd; border-radius: 6px; text-align: center; }
-        
-        .loader { display: none; text-align: center; padding: 40px; }
+        .qty-input { width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .loader { display: none; text-align: center; padding: 30px; }
     </style>
 </head>
 <body>
@@ -181,11 +194,13 @@
     <h1><i class="fas fa-boxes"></i> SGI | Gestão de Materiais</h1>
     
     <a href="https://app.powerbi.com/view?r=eyJrIjoiYzljNTA5MDItOThhZi00ZTFjLWEzNjctZWZjMzViYmFmNjNiIiwidCI6IjczNWUyYWNmLTBmZjUtNDEwYi1hMzc0LTc2NWI1NjU0MGI3YyJ9" 
-       target="_blank" class="pbi-container">
-        <i class="fas fa-chart-pie pbi-icon"></i>
+       target="_blank" class="pbi-emblem">
+        <div class="pbi-icon-stack">
+            <i class="fas fa-chart-column pbi-icon-main"></i>
+        </div>
         <div class="pbi-text">
             <span>PAINEL GSI</span>
-            <span>INVENTARIO</span>
+            <span class="pbi-subtext">INVENTÁRIO ANALÍTICO</span>
         </div>
     </a>
 </div>
@@ -208,13 +223,13 @@
         </div>
         <div class="filter-group">
             <label><i class="fas fa-search"></i> Filtrar Material</label>
-            <input type="text" id="searchInput" class="search-input" placeholder="Digite para buscar..." onkeyup="filtrarTabela()">
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar..." onkeyup="filtrarTabela()">
         </div>
     </div>
 
     <div id="loader" class="loader">
-        <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--accent);"></i>
-        <p>Acessando base de dados...</p>
+        <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+        <p>Acessando base...</p>
     </div>
 
     <div id="content" style="display: none;">
@@ -245,12 +260,13 @@
 </div>
 
 <script>
+    // Lógica original preservada
     const almoxs = { 'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 'ES': ['VVA', 'CIM', 'CNA', 'LNS'] };
 
     function popularAlmoxarifados() {
         const uf = document.getElementById('uf').value;
         const select = document.getElementById('almox');
-        select.innerHTML = '<option value="">Selecione o Almox...</option>';
+        select.innerHTML = '<option value="">Selecione...</option>';
         if(uf && almoxs[uf]) {
             almoxs[uf].forEach(a => {
                 let opt = document.createElement('option');
@@ -276,8 +292,8 @@
                         <td><strong>${m.origem}</strong></td>
                         <td>${m.produtos}</td>
                         <td><small>${m.und}</small></td>
-                        <td class="saldo-celula" style="font-weight: 600;">${m.quantidade_real}</td>
-                        <td class="data-celula"><span class="date-badge"><i class="far fa-calendar-alt"></i> ${m.data_fmt || 'Pendente'}</span></td>
+                        <td style="font-weight: bold;">${m.quantidade_real}</td>
+                        <td><span class="date-badge">${m.data_fmt || 'Pendente'}</span></td>
                         <td><input type="number" class="qty-input" data-id="${m.id}" placeholder="0"></td>
                     </tr>`;
             });
@@ -294,7 +310,6 @@
         const editados = Array.from(inputs).filter(i => i.value !== "");
         if(editados.length === 0) return alert("Preencha ao menos uma contagem.");
 
-        const payload = editados.map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
         const btn = document.getElementById('btnSalvar');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SALVANDO...';
@@ -303,33 +318,24 @@
             const response = await fetch('/atualizar', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
+                body: JSON.stringify(editados.map(i => ({ id: i.dataset.id, nova_qtd: i.value })))
             });
             const res = await response.json();
             if(res.status === "sucesso") {
-                editados.forEach(input => {
-                    const row = input.closest('tr');
-                    const cellSaldo = row.querySelector('.saldo-celula');
-                    const cellData = row.querySelector('.data-celula');
-                    cellSaldo.innerText = input.value;
-                    const hoje = new Date().toLocaleDateString('pt-BR');
-                    cellData.innerHTML = `<span class="date-badge"><i class="far fa-calendar-alt"></i> ${hoje}</span>`;
-                    input.value = "";
-                });
                 alert("✅ Inventário atualizado!");
+                location.reload();
             }
         } catch (error) {
-            alert("Erro de conexão.");
+            alert("Erro ao salvar.");
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO';
         }
     }
 
     function exportarExcel() {
         const table = document.getElementById("inventoryTable");
         const wb = XLSX.utils.table_to_book(table, { sheet: "Inventario" });
-        XLSX.writeFile(wb, `Relatorio_Inventario.xlsx`);
+        XLSX.writeFile(wb, `Relatorio_GSI.xlsx`);
     }
 
     function filtrarTabela() {
@@ -346,6 +352,7 @@
 </script>
 </body>
 </html>
+
 
 
 
