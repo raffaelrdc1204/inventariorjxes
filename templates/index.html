@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGI - Sistema de Gestão de Inventário </title>
+    <title>SGI - Sistema de Gestão de Inventário</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -136,6 +136,7 @@
         }
 
         .btn-save:hover { background: #219150; transform: translateY(-2px); }
+        .btn-save:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
         .loader { display: none; text-align: center; padding: 40px; }
     </style>
@@ -144,7 +145,6 @@
 
 <div class="navbar">
     <h1><i class="fas fa-boxes"></i> SGI | Gestão de Materiais</h1>
-    
 </div>
 
 <div class="container">
@@ -190,7 +190,7 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-        <button class="btn-save" onclick="salvarContagem()">
+        <button id="btnSalvar" class="btn-save" onclick="salvarContagem()">
             <i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO
         </button>
     </div>
@@ -206,7 +206,7 @@
         const uf = document.getElementById('uf').value;
         const select = document.getElementById('almox');
         select.innerHTML = '<option value="">Selecione o Almox...</option>';
-        if(uf) {
+        if(uf && almoxs[uf]) {
             almoxs[uf].forEach(a => {
                 let opt = document.createElement('option');
                 opt.value = opt.text = a;
@@ -228,26 +228,25 @@
             
             let html = '';
             materiais.forEach(m => {
-                // Ajuste Técnico: Verificamos se data_fmt existe no objeto 'm'
+                // Ajuste: Verifica se data_fmt existe, senão usa texto padrão
                 const dataExibicao = m.data_fmt ? m.data_fmt : 'Não atualizado';
                 
-       // Dentro do materiais.forEach no seu index.html
-html += `
-    <tr>
-        <td><strong>${m.ORIGEM}</strong></td>
-        <td>${m.PRODUTOS}</td>
-        <td><small>${m.UND}</small></td>
-        <td style="font-weight: 600;">${m.quantidade_real}</td>
-        <td>
-            <span class="date-badge">
-                <i class="far fa-calendar-alt"></i> ${m.ultima_atualizacao}
-            </span>
-        </td>
-        <td>
-            <input type="number" class="qty-input" data-id="${m.id}" placeholder="0">
-        </td>
-    </tr>
-`;
+                html += `
+                    <tr>
+                        <td><strong>${m.ORIGEM}</strong></td>
+                        <td>${m.PRODUTOS}</td>
+                        <td><small>${m.UND}</small></td>
+                        <td style="font-weight: 600;">${m.quantidade_real}</td>
+                        <td>
+                            <span class="date-badge">
+                                <i class="far fa-calendar-alt"></i> ${dataExibicao}
+                            </span>
+                        </td>
+                        <td>
+                            <input type="number" class="qty-input" data-id="${m.id}" placeholder="0">
+                        </td>
+                    </tr>
+                `;
             });
 
             document.getElementById('tableBody').innerHTML = html;
@@ -256,6 +255,7 @@ html += `
         } catch (error) {
             console.error("Erro:", error);
             alert("Erro ao carregar dados. Verifique a conexão com o Python.");
+            document.getElementById('loader').style.display = 'none';
         }
     }
 
@@ -280,6 +280,12 @@ html += `
 
         if(payload.length === 0) return alert("Preencha ao menos uma contagem.");
 
+        // Feedback visual no botão
+        const btn = document.getElementById('btnSalvar');
+        const textoOriginal = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
         try {
             const response = await fetch('/atualizar', {
                 method: 'POST',
@@ -289,11 +295,20 @@ html += `
 
             const res = await response.json();
             if(res.status === "sucesso") {
-                alert("✅ Inventário atualizado!");
+                alert("✅ Inventário atualizado com sucesso!");
+                // Limpa os campos preenchidos
+                Array.from(inputs).forEach(i => i.value = "");
                 carregarDados(); 
+            } else {
+                alert("Erro ao salvar: " + (res.message || "Erro desconhecido"));
             }
         } catch (error) {
-            alert("Erro ao salvar.");
+            console.error(error);
+            alert("Erro ao salvar. Verifique sua conexão.");
+        } finally {
+            // Restaura o botão
+            btn.innerHTML = textoOriginal;
+            btn.disabled = false;
         }
     }
 </script>
