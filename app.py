@@ -46,11 +46,18 @@ def listar_materiais(almox):
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     try:
-        # --- AQUI ESTAVA O SEGREDO ---
-        # 1. Tabela correta: inventario_almox_rjxes
-        # 2. Coluna correta: ALMOX (Pois 'RJO' está na coluna ALMOX, coluna 5)
+        # --- CORREÇÃO APLICADA AQUI ---
+        # Usamos 'AS "NOME"' com aspas duplas para forçar que o Python 
+        # devolva o nome da coluna em MAIÚSCULO (ex: "ORIGEM").
+        # Sem isso, o Postgres devolve 'origem' (minúsculo) e o site não entende.
         cursor.execute("""
-            SELECT id, ORIGEM, PRODUTOS, UND, quantidade_real, ultima_atualizacao
+            SELECT 
+                id, 
+                ORIGEM AS "ORIGEM", 
+                PRODUTOS AS "PRODUTOS", 
+                UND AS "UND", 
+                quantidade_real, 
+                ultima_atualizacao
             FROM inventario_almox_rjxes
             WHERE UPPER(TRIM(ALMOX)) = UPPER(TRIM(%s))
         """, (almox,))
