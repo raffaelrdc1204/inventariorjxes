@@ -68,7 +68,7 @@
 
 <div class="navbar">
     <h1><i class="fas fa-boxes"></i> SGI | Gestão de Materiais</h1>
-    <a href="SUA_URL_DO_POWER_BI" target="_blank" class="pbi-emblem">
+    <a href="https://app.powerbi.com/view?r=eyJrIjoiYzljNTA5MDItOThhZi00ZTFjLWEzNjctZWZjMzViYmFmNjNiIiwidCI6IjczNWUyYWNmLTBmZjUtNDEwYi1hMzc0LTc2NWI1NjU0MGI3YyJ9" target="_blank" class="pbi-emblem">
         <div class="pbi-icon-stack"><i class="fas fa-chart-column pbi-icon-main"></i></div>
         <div class="pbi-text"><span>PAINEL GSI</span><span class="pbi-subtext">INVENTÁRIO ANALÍTICO</span></div>
     </a>
@@ -129,9 +129,8 @@
 </div>
 
 <script>
-    // --- CONFIGURAÇÃO ---
-    // Substitua a URL abaixo pela URL que o Render te deu (ex: https://sgi-backend.onrender.com)
-    const API_BASE_URL = "https://sgi-inventario-rjxes.onrender.com"; 
+    // URL exata do seu backend no Render (conforme seu print de erro)
+    const API_BASE_URL = "https://inventariorjxes-1.onrender.com"; 
 
     const almoxs = { 
         'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 
@@ -157,21 +156,24 @@
 
         const loader = document.getElementById('loader');
         const content = document.getElementById('content');
+        const tableBody = document.getElementById('tableBody');
         
         loader.style.display = 'block';
         content.style.display = 'none';
 
         try {
-            // ROTA ABSOLUTA PARA O RENDER
+            // Rota completa para evitar erro de conexão cruzada
             const response = await fetch(`${API_BASE_URL}/materiais/${almox}`);
             
-            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`Erro no servidor: ${response.status}`);
+            }
             
             const materiais = await response.json();
             let html = '';
             
             if (materiais.length === 0) {
-                html = '<tr><td colspan="6" style="text-align:center">Nenhum dado encontrado para este almoxarifado.</td></tr>';
+                html = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhum material encontrado para o almoxarifado <b>' + almox + '</b> no banco de dados.</td></tr>';
             } else {
                 materiais.forEach(m => {
                     html += `
@@ -186,14 +188,14 @@
                 });
             }
             
-            document.getElementById('tableBody').innerHTML = html;
+            tableBody.innerHTML = html;
             loader.style.display = 'none';
             content.style.display = 'block';
 
         } catch (error) {
-            console.error("Erro ao buscar dados:", error);
+            console.error("Erro na requisição:", error);
             loader.style.display = 'none';
-            alert("Não foi possível conectar ao servidor. Verifique se o backend no Render está ativo.");
+            alert("Não foi possível conectar ao servidor. Verifique se o backend no Render está ativo.\nErro: " + error.message);
         }
     }
 
@@ -203,7 +205,7 @@
             .filter(i => i.value !== "")
             .map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
 
-        if(editados.length === 0) return alert("Preencha ao menos uma contagem.");
+        if(editados.length === 0) return alert("Preencha ao menos uma contagem antes de finalizar.");
 
         const btn = document.getElementById('btnSalvar');
         btn.disabled = true;
@@ -219,9 +221,9 @@
             const res = await response.json();
             if(res.status === "sucesso") {
                 alert("✅ Inventário atualizado com sucesso!");
-                carregarDados(); // Recarrega a tabela sem dar refresh na página inteira
+                carregarDados(); 
             } else {
-                throw new Error(res.mensagem);
+                throw new Error(res.mensagem || "Erro desconhecido ao salvar.");
             }
         } catch (error) {
             console.error("Erro ao salvar:", error);
@@ -235,7 +237,7 @@
     function exportarExcel() {
         const table = document.getElementById("inventoryTable");
         const wb = XLSX.utils.table_to_book(table, { sheet: "Inventario" });
-        XLSX.writeFile(wb, `Relatorio_GSI_${new Date().toLocaleDateString()}.xlsx`);
+        XLSX.writeFile(wb, `Relatorio_SGI_${new Date().toLocaleDateString()}.xlsx`);
     }
 
     function filtrarTabela() {
