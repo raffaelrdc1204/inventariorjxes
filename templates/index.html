@@ -14,18 +14,11 @@
             --excel: #1d6f42;
             --bg: #f4f7f6;
             --text: #2c3e50;
-            /* Degradê fiel à imagem enviada: Marinho, Vermelho e Laranja */
             --nav-gradient: linear-gradient(90deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; }
 
-        /* Navbar compacta com as cores da imagem */
         .navbar { 
             background: var(--nav-gradient); 
             padding: 0.4rem 2rem; 
@@ -36,154 +29,37 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        .navbar h1 { 
-            font-size: 1.1rem; 
-            margin: 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
+        .navbar h1 { font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 10px; }
 
-        /* Emblema Profissional de Relatório BI */
         .pbi-emblem {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: white;
-            background: rgba(255, 255, 255, 0.12);
-            padding: 6px 16px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 12px; text-decoration: none; color: white;
+            background: rgba(255, 255, 255, 0.12); padding: 6px 16px; border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.25); transition: all 0.3s ease;
         }
 
-        .pbi-emblem:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #f2c811;
-            transform: translateY(-1px);
-        }
+        .pbi-icon-main { font-size: 1.8rem; color: #f2c811; }
+        .pbi-text { display: flex; flex-direction: column; line-height: 1; }
+        .pbi-text span { font-size: 0.75rem; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; }
+        .pbi-subtext { font-size: 0.6rem !important; opacity: 0.9; margin-top: 2px; }
 
-        .pbi-icon-stack {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-        }
+        .container { max-width: 1250px; margin: 1rem auto; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
 
-        /* Alusão ao Relatório/Gráfico BI */
-        .pbi-icon-main {
-            font-size: 1.8rem;
-            color: #f2c811;
-        }
+        .filter-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px; }
+        .filter-group label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.8rem; color: var(--primary); }
 
-        .pbi-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1;
-        }
-
-        .pbi-text span {
-            font-size: 0.75rem;
-            font-weight: 900;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        .pbi-subtext {
-            font-size: 0.6rem !important;
-            opacity: 0.9;
-            font-weight: 400 !important;
-            margin-top: 2px;
-        }
-
-        .container { 
-            max-width: 1250px; 
-            margin: 1rem auto; 
-            padding: 15px; 
-            background: white; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
-        }
-
-        .filter-panel { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-            gap: 15px; 
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee; 
-            margin-bottom: 15px; 
-        }
-
-        .filter-group label { 
-            display: block; 
-            font-weight: 700; 
-            margin-bottom: 6px; 
-            font-size: 0.8rem; 
-            color: var(--primary); 
-        }
-
-        select, .search-input { 
-            width: 100%; 
-            padding: 8px; 
-            border: 1px solid #dfe6e9; 
-            border-radius: 6px; 
-            font-size: 0.85rem;
-            outline: none;
-        }
+        select, .search-input { width: 100%; padding: 8px; border: 1px solid #dfe6e9; border-radius: 6px; font-size: 0.85rem; outline: none; }
 
         .table-responsive { overflow-x: auto; max-height: 500px; }
-        
         table { width: 100%; border-collapse: collapse; }
-        
-        th { 
-            background-color: #f8f9fa; 
-            color: var(--primary); 
-            padding: 12px; 
-            text-transform: uppercase; 
-            font-size: 0.7rem; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
-            border-bottom: 2px solid #eee; 
-        }
-
+        th { background-color: #f8f9fa; color: var(--primary); padding: 12px; text-transform: uppercase; font-size: 0.7rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #eee; }
         td { padding: 10px; border-bottom: 1px solid #f1f1f1; font-size: 0.8rem; }
 
-        .actions-bar { 
-            display: flex; 
-            justify-content: flex-end; 
-            gap: 12px; 
-            margin-top: 15px; 
-        }
+        .actions-bar { display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; }
+        .btn-save, .btn-export { border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: white; }
+        .btn-save { background: var(--success); }
+        .btn-export { background: var(--excel); }
 
-        .btn-save, .btn-export { 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            font-size: 0.8rem;
-        }
-
-        .btn-save { background: var(--success); color: white; }
-        .btn-export { background: var(--excel); color: white; }
-
-        .date-badge { 
-            background: #e1f5fe; 
-            color: #01579b; 
-            padding: 4px 10px; 
-            border-radius: 4px; 
-            font-size: 0.7rem; 
-            font-weight: 700;
-        }
-
+        .date-badge { background: #e1f5fe; color: #01579b; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
         .qty-input { width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
         .loader { display: none; text-align: center; padding: 30px; }
     </style>
@@ -192,16 +68,9 @@
 
 <div class="navbar">
     <h1><i class="fas fa-boxes"></i> SGI | Gestão de Materiais</h1>
-    
-    <a href="https://app.powerbi.com/view?r=eyJrIjoiYzljNTA5MDItOThhZi00ZTFjLWEzNjctZWZjMzViYmFmNjNiIiwidCI6IjczNWUyYWNmLTBmZjUtNDEwYi1hMzc0LTc2NWI1NjU0MGI3YyJ9" 
-       target="_blank" class="pbi-emblem">
-        <div class="pbi-icon-stack">
-            <i class="fas fa-chart-column pbi-icon-main"></i>
-        </div>
-        <div class="pbi-text">
-            <span>PAINEL GSI</span>
-            <span class="pbi-subtext">INVENTÁRIO ANALÍTICO</span>
-        </div>
+    <a href="SUA_URL_DO_POWER_BI" target="_blank" class="pbi-emblem">
+        <div class="pbi-icon-stack"><i class="fas fa-chart-column pbi-icon-main"></i></div>
+        <div class="pbi-text"><span>PAINEL GSI</span><span class="pbi-subtext">INVENTÁRIO ANALÍTICO</span></div>
     </a>
 </div>
 
@@ -229,7 +98,7 @@
 
     <div id="loader" class="loader">
         <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
-        <p>Acessando base...</p>
+        <p>Acessando base de dados...</p>
     </div>
 
     <div id="content" style="display: none;">
@@ -260,8 +129,14 @@
 </div>
 
 <script>
-    // Lógica original preservada
-    const almoxs = { 'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 'ES': ['VVA', 'CIM', 'CNA', 'LNS'] };
+    // --- CONFIGURAÇÃO ---
+    // Substitua a URL abaixo pela URL que o Render te deu (ex: https://sgi-backend.onrender.com)
+    const API_BASE_URL = "https://sgi-inventario-rjxes.onrender.com"; 
+
+    const almoxs = { 
+        'RJ': ['RJO', 'VRD', 'CPS', 'ROS'], 
+        'ES': ['VVA', 'CIM', 'CNA', 'LNS'] 
+    };
 
     function popularAlmoxarifados() {
         const uf = document.getElementById('uf').value;
@@ -279,35 +154,55 @@
     async function carregarDados() {
         const almox = document.getElementById('almox').value;
         if(!almox) return;
-        document.getElementById('loader').style.display = 'block';
-        document.getElementById('content').style.display = 'none';
+
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('content');
+        
+        loader.style.display = 'block';
+        content.style.display = 'none';
 
         try {
-            const response = await fetch(`/materiais/${almox}`);
+            // ROTA ABSOLUTA PARA O RENDER
+            const response = await fetch(`${API_BASE_URL}/materiais/${almox}`);
+            
+            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+            
             const materiais = await response.json();
             let html = '';
-            materiais.forEach(m => {
-                html += `
-                    <tr>
-                        <td><strong>${m.origem}</strong></td>
-                        <td>${m.produtos}</td>
-                        <td><small>${m.und}</small></td>
-                        <td style="font-weight: bold;">${m.quantidade_real}</td>
-                        <td><span class="date-badge">${m.data_fmt || 'Pendente'}</span></td>
-                        <td><input type="number" class="qty-input" data-id="${m.id}" placeholder="0"></td>
-                    </tr>`;
-            });
+            
+            if (materiais.length === 0) {
+                html = '<tr><td colspan="6" style="text-align:center">Nenhum dado encontrado para este almoxarifado.</td></tr>';
+            } else {
+                materiais.forEach(m => {
+                    html += `
+                        <tr>
+                            <td><strong>${m.origem || '-'}</strong></td>
+                            <td>${m.produtos || 'Sem descrição'}</td>
+                            <td><small>${m.und || '-'}</small></td>
+                            <td style="font-weight: bold;">${m.quantidade_real || 0}</td>
+                            <td><span class="date-badge">${m.data_fmt || 'Pendente'}</span></td>
+                            <td><input type="number" class="qty-input" data-id="${m.id}" placeholder="0"></td>
+                        </tr>`;
+                });
+            }
+            
             document.getElementById('tableBody').innerHTML = html;
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
+            loader.style.display = 'none';
+            content.style.display = 'block';
+
         } catch (error) {
-            document.getElementById('loader').style.display = 'none';
+            console.error("Erro ao buscar dados:", error);
+            loader.style.display = 'none';
+            alert("Não foi possível conectar ao servidor. Verifique se o backend no Render está ativo.");
         }
     }
 
     async function salvarContagem() {
         const inputs = document.querySelectorAll('.qty-input');
-        const editados = Array.from(inputs).filter(i => i.value !== "");
+        const editados = Array.from(inputs)
+            .filter(i => i.value !== "")
+            .map(i => ({ id: i.dataset.id, nova_qtd: i.value }));
+
         if(editados.length === 0) return alert("Preencha ao menos uma contagem.");
 
         const btn = document.getElementById('btnSalvar');
@@ -315,27 +210,32 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SALVANDO...';
 
         try {
-            const response = await fetch('/atualizar', {
+            const response = await fetch(`${API_BASE_URL}/atualizar`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(editados.map(i => ({ id: i.dataset.id, nova_qtd: i.value })))
+                body: JSON.stringify(editados)
             });
+
             const res = await response.json();
             if(res.status === "sucesso") {
-                alert("✅ Inventário atualizado!");
-                location.reload();
+                alert("✅ Inventário atualizado com sucesso!");
+                carregarDados(); // Recarrega a tabela sem dar refresh na página inteira
+            } else {
+                throw new Error(res.mensagem);
             }
         } catch (error) {
-            alert("Erro ao salvar.");
+            console.error("Erro ao salvar:", error);
+            alert("Erro ao salvar contagem: " + error.message);
         } finally {
             btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> FINALIZAR ATUALIZAÇÃO';
         }
     }
 
     function exportarExcel() {
         const table = document.getElementById("inventoryTable");
         const wb = XLSX.utils.table_to_book(table, { sheet: "Inventario" });
-        XLSX.writeFile(wb, `Relatorio_GSI.xlsx`);
+        XLSX.writeFile(wb, `Relatorio_GSI_${new Date().toLocaleDateString()}.xlsx`);
     }
 
     function filtrarTabela() {
